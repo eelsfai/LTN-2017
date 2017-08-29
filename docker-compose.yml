@@ -1,0 +1,19 @@
+version: "3"
+services:
+    web_engine:
+        build: ./app/
+        image: temdy/ltn2017:latest
+        networks:
+          - frontend
+        volumes:
+          - $PWD/app:/app
+        deploy:
+          replicas: 1
+          update_config:
+            parallelism: 1
+          restart_policy:
+            condition: on-failure
+        environment:
+          - DEBUG=False
+networks:
+    frontend:
