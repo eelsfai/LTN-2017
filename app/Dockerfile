@@ -8,6 +8,8 @@ FROM python:3.6
 # File Author / Maintainer
 MAINTAINER Hossein Medy (hossein.medy@gmail.com)
 
+RUN apt-get update && apt-get install phantomjs
+
 # install application requirements
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
@@ -23,4 +25,4 @@ ADD . /app
 EXPOSE 5000
 
 # Define our command to be run when launching the container
-#CMD /bin/bash
+CMD /bin/bash
