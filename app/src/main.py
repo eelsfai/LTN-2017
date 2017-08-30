@@ -3,8 +3,8 @@ Created on Aug 29, 2017
 
 @author: Hossein
 '''
-
-from selenium import webdriver
+from requests import Session
+import json
 
 url_main_team_page = "https://secure.e2rm.com/registrant/TeamFundraisingPage.aspx?teamID=738302&langPref=en-CA"
 url_ajax_request = "https://secure.e2rm.com/registrant/WebServices/RegistrantWebService.asmx/GetTeamMembers"
@@ -13,57 +13,34 @@ url_ajax_request = "https://secure.e2rm.com/registrant/WebServices/RegistrantWeb
 def ajax_request():
   '''
   Get the data from the web. This tries to immitate the 'function getTeamMembers() {' in the 
-  source code of the website here: view-source:https://secure.e2rm.com/registrant/TeamFundraisingPage.aspx?teamID=738302&langPref=en-CA 
-  '''
-  
-  '''
-  var teamId = parseInt($teamListContainer.attr("data-team-id"));
-  var languageCode = $teamListContainer.attr("data-language-code");
-  var sourceReferrerUrl = $teamListContainer.attr("data-source-referrer");
-  var anonymousText = $teamListContainer.find(".anonymous-team-member").text();
-  var isOrderByAmount = $teamListContainer.attr("data-order-by-amount") == "True";
-  '''
+  source code of the website here: view-source:https://secure.e2rm.com/registrant/TeamFundraisingPage.aspx?teamID=738302&langPref=en-CA
+  return: 
+    :list a list containing dictionaries of donations. 
+          example: 
+          [{'name': 'Johanna Nicoletta', 'isTeamCaptain': 'True', 'amount': '$277.38', 'facebookId': '1633682560', 'pageUrl': 'https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3697209&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA'}, {'name': 'Ericsson Activities', 'isTeamCaptain': 'False', 'amount': '$194.00', 'facebookId': '', 'pageUrl': 'https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3877056&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA'}, {'name': 'Alireza Mirzaee', 'isTeamCaptain': 'False', 'amount': '$25.00', 'facebookId': '', 'pageUrl': 'https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3869108&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA'}, {'name': 'Hossein Seyedmehdi', 'isTeamCaptain': 'False', 'amount': '$0.00', 'facebookId': '', 'pageUrl': 'https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3855399&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA'}]
 
-  from requests import Session
-  import json
-  
-  url_main_team_page = "https://secure.e2rm.com/registrant/TeamFundraisingPage.aspx?teamID=738302&langPref=en-CA"
-  url_ajax_request = "https://secure.e2rm.com/registrant/WebServices/RegistrantWebService.asmx/GetTeamMembers"
-  
+  '''
+    
   session = Session()
   
-  #print(session.cookies.get_dict())
-  session.get(url_main_team_page)
-  #print(session.cookies.get_dict())
-  
+  # to get the payload, use the Chrome Developer Mode (alt+command+I in Mac) >> Network >> XHR >> GetTeamMembers >> Headers >> Request Payload  
   payload = json.dumps({'teamID':738302,
                         'languageCode':'en-CA',
                         'sourceReferrerUrl':'https://secure.e2rm.com/registrant/search.aspx?eventid=210107&langpref=en-CA',
                         'anonymousText':'Anonymous',
                         'isOrderByAmount':'true'})
   
-  response = session.post(url = url_ajax_request, data = payload)
-   
-  print(response.text)
+  response = session.post(url = url_ajax_request, data = payload, headers={'content-type':'application/json'})
   
-  return response 
-
-def headless_request():
-  driver = webdriver.PhantomJS()
-  driver.get(url_main_team_page)
-  r = driver.page_source()
-  r.find("Johanna") 
+  response_dict = response.json()
+  donation_list = json.loads(response_dict['d'])
+  return donation_list
 
 if __name__ == "__main__": 
-  #headless_request()
-  ajax_request()
+  r = ajax_request()
+  print(r)
+  print(r[0]['name'])
+  
+  
+  
 
-
-#ASP.NET_SessionId=kfage2wf4qnazbeh30g2dnt2; BIGipServersecure.e2rm.com=1130647562.20480.0000
-#kfage2wf4qnazbeh30g2dnt2
-#1130647562.20480.0000
-  
-  
-# /registrant/TeamFundraisingPage.aspx
-  
-  
