@@ -1,12 +1,12 @@
 version: "3"
 services:
-    web_engine:
+    app_service:
         build: ./app/
         image: temdy/ltn2017:latest
         networks:
           - frontend
-        volumes:
-          - $PWD/app:/app
+        #volumes:
+        #  - $PWD/app:/app
         deploy:
           replicas: 1
           update_config:
