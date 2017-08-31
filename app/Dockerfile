@@ -6,9 +6,7 @@
 FROM python:3.6
 
 # File Author / Maintainer
-MAINTAINER Hossein Medy (hossein.medy@gmail.com)
-
-RUN apt-get update && apt-get install phantomjs
+MAINTAINER Hossein Seyedmehdi (hossein.seyedmehdi@gmail.com)
 
 # install application requirements
 COPY requirements.txt /app/requirements.txt
@@ -20,9 +18,6 @@ WORKDIR /app
 # Copy our code from the current folder to /app folder inside the container
 ADD . /app
 
-
-# Make port 5000 available for links and/or publish
-EXPOSE 5000
-
 # Define our command to be run when launching the container
-CMD /bin/bash
+#CMD /bin/bash
+CMD python /app/src/main.py
