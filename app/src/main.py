@@ -73,26 +73,6 @@ if __name__ == "__main__":
   
   # test if the 'ericssoncommunity' can be found in the page
   assert donor_page[page_url].find('ericssoncommunity') != -1
-  # save data to file 
-  save_to_file(data_file_name, team_data)
-  
-  #
-  # test loading from the file and if the name of Johanna can be found
-  #
-  print('loading from the file...')
-  member_data = load_from_file(data_file_name)
-  print(member_data)
-  a_day_data = {}
-  # take the first item in the dictionary; doesn'e matter which one it is
-  for key in member_data: 
-    a_day_data = member_data[key]
-    break
-  found_Johanna = False
-  for d in a_day_data: 
-    if d['name'] == 'Johanna Nicoletta': 
-      found_Johanna = True
-  assert found_Johanna == True
-  print(a_day_data)
 
   print("Done!")
   
