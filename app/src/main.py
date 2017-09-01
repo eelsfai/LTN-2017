@@ -5,8 +5,9 @@ Created on Aug 29, 2017
 '''
 from requests import Session
 import json
+from app.src import email_handler
 
-data_file_name = 'web_data_json.data'
+data_file_name = 'web_data_json.txt'
 
 
 def make_ajax_request():
@@ -61,7 +62,7 @@ def load_from_file(file_name):
   
   return json.loads(file_text)
 
-  
+
 
 if __name__ == "__main__": 
   team_members = make_ajax_request()
@@ -73,6 +74,12 @@ if __name__ == "__main__":
   
   # test if the 'ericssoncommunity' can be found in the page
   assert donor_page[page_url].find('ericssoncommunity') != -1
+  
+  # Save to file
+  save_to_file(data_file_name, team_data)
+  
+  print("Sending email ... ")
+  email_handler.send_email(data_file_name)
 
   print("Done!")
   

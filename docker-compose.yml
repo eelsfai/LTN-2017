@@ -2,7 +2,7 @@ version: "3"
 services:
     app_service:
         build: ./app/
-        image: temdy/ltn2017:latest
+        image: ltneric/ltn2017:latest
         networks:
           - frontend
         #volumes:
@@ -15,5 +15,7 @@ services:
             condition: on-failure
         environment:
           - DEBUG=False
+        env_file:
+          - secrets.env
 networks:
     frontend:
