@@ -32,7 +32,7 @@ def send_email(data_file_name):
   msg = MIMEMultipart()
   msg['From'] = from_addr
   msg['To'] = to_addr_str
-  msg['Subject'] = "SUBJECT OF THE MAIL"
+  msg['Subject'] = "Test email for LTN"
    
   body = "The Email Body"
   msg.attach(MIMEText(body, 'plain'))
