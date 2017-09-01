@@ -25,10 +25,13 @@ def send_email(data_file_name):
   from email.mime.text import MIMEText 
  
   from_addr = MAIL_USERNAME
-  to_addr = "hossein.seyedmehdi@gmail.com"
+  to_addr = ["hossein.seyedmehdi@gmail.com", "hossein.seyedmehdi@ericsson.com"]
+  to_addr_str = ''
+  for addr in to_addr: 
+    to_addr_str += addr + ', '
   msg = MIMEMultipart()
   msg['From'] = from_addr
-  msg['To'] = to_addr
+  msg['To'] = to_addr_str
   msg['Subject'] = "SUBJECT OF THE MAIL"
    
   body = "The Email Body"
@@ -47,7 +50,8 @@ def send_email(data_file_name):
   server.starttls()
   server.login(from_addr, MAIL_PASSWORD)
   text = msg.as_string()
-  server.sendmail(from_addr, to_addr, text)
+  for addr in to_addr:
+    server.sendmail(from_addr, addr, text)
   server.quit()
   
   return
