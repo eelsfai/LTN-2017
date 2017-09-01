@@ -11,7 +11,6 @@ MAIL_PORT = 587
 MAIL_USERNAME = 'ltn.ericsson@gmail.com'
 
 MAIL_PASSWORD = os.environ['MAIL_PASSWORD']
-print('email password is ' + MAIL_PASSWORD)
 
 def send_email(data_file_name):
   ''' 
@@ -30,7 +29,7 @@ def send_email(data_file_name):
   msg = MIMEMultipart()
   msg['From'] = from_addr
   msg['To'] = to_addr
-  msg['Subject'] = "SUBJECT OF THE MAIL 2"
+  msg['Subject'] = "SUBJECT OF THE MAIL"
    
   body = "The Email Body"
   msg.attach(MIMEText(body, 'plain'))

@@ -5,7 +5,7 @@ Created on Aug 29, 2017
 '''
 from requests import Session
 import json
-from app.src import email_handler
+from email_handler import send_email
 
 data_file_name = 'web_data_json.txt'
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
   save_to_file(data_file_name, team_data)
   
   print("Sending email ... ")
-  email_handler.send_email(data_file_name)
+  send_email(data_file_name)
 
   print("Done!")
   
