@@ -1,5 +1,5 @@
-# DaVil
-> Data analytics and Visualizaiton for Light The Night. Measure and present the corporate pariticipation in the fundraising for the lightthenight.ca 
+# DaViL
+> Data analytics and Visualizaiton for LightTheNight. Measure and present the corporate pariticipation in the fundraising for the lightthenight.ca 
 
 ## Before you start
 These instructions are aimed for Mac users. 
