@@ -10,8 +10,8 @@ class TestScrapingMethods(unittest.TestCase):
   '''
   Test the methods used to collect data from the web, save into and load from files. 
   '''
-  def test_make_ajax_request(self):
-    team_members = main.make_ajax_request()
+  def test_get_team_members(self):
+    team_members = main.get_team_members()
     found_Johanna = False
     for d in team_members: 
       if d['name'] == 'Johanna Nicoletta': 
@@ -19,10 +19,10 @@ class TestScrapingMethods(unittest.TestCase):
     self.assertEqual(found_Johanna, True, "The AJAX call was not successful!")
     
   def test_save_and_load(self):
-    team_members = main.make_ajax_request()
+    team_members = main.get_team_members()
     team_data = {'date': team_members}
     # save data to file 
-    data_file_name = 'web_data_json_test.data'
+    data_file_name = '../data/web_data_json_test.data'
 
     main.save_to_file(data_file_name, team_data)    
     #
@@ -40,5 +40,26 @@ class TestScrapingMethods(unittest.TestCase):
       if d['name'] == 'Johanna Nicoletta': 
         found_Johanna = True
     self.assertEqual(found_Johanna, True, "Can not save or load from file")
+    
+  def test_update_ledger(self):
+    test_ledger = {'20170901': [{'name': 'Johanna', 'amount': '345$'}, {'name':"Hossein", 'amount': '22$'}], 
+                   '20170901': [{'name': 'Johanna', 'amount': '355$'}, {'name':"Hossein", 'amount': '23$'}]}
+    new_data = [{'name': 'Johanna', 'amount': '355$'}, {'name':"Hossein", 'amount': '23$'}, {'name':"Ron", 'amount': '100$'}]
+    main.update_ledger(test_ledger, new_data)
+    from time import gmtime, strftime
+    today_date = strftime("%Y%m%d", gmtime())
+    self.assertEqual(today_date in test_ledger, True, "The data has not been added to the ledger")
+    # test updating
+    update_data = [{'name': 'Johanna', 'amount': '355$'}, {'name':"Hossein", 'amount': '50$'}]
+    main.update_ledger(test_ledger, update_data, '20170901')
+    self.assertEqual(test_ledger['20170901'][1]['amount'] == '50$', True, "Ledger is not updated.")
+    #
+    main.update_ledger(['list', 'of', 'some string'], 'something', '20170901')
+    self.assertEqual(test_ledger['20170901'][1]['amount'] == '50$', True, "Ledger is not updated.")
+
+
+
+
+
 
     

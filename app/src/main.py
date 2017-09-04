@@ -5,7 +5,9 @@ Created on Aug 29, 2017
 '''
 from requests import Session
 import json
-from email_handler import send_email
+import os 
+from email_handler import send_email, get_raw_data_path
+from app.src.email_handler import get_raw_data_path
 
 data_file_name = 'web_data_json.txt'
 
@@ -57,29 +59,58 @@ def load_from_file(file_name):
   return: 
     :dict
   '''
-  with open(file_name) as f: 
-    file_text = f.read()
-  
-  return json.loads(file_text)
+  try: 
+    with open(file_name) as f: 
+      file_text = f.read()
+    return json.loads(file_text)
+  except: 
+    return 
 
-
+def update_ledger(ledger, new_data, date = None):
+  '''
+  A ledger is a dictionary of the history of data. The format of a ledger would be 
+  {'a_date': a_data_blob, 'nother_date': another_data_blob, ... } 
+  If the date exists in the ledger, this function would replace the data for 
+  that date with the new_data; otherwise, it will add a new entry with the new data
+  and date
+  input: 
+    :dict : the ledger 
+    :any_mutable_object
+    :str : in the format of 'YYYYMMDD'. If the date is not given, today's date is used. 
+  return: 
+    :dict : inplace update of the ledger 
+  '''
+  #get the date: 
+  if not date: 
+    from time import gmtime, strftime
+    date = strftime("%Y%m%d", gmtime())
+  if type(ledger) != type(dict()):
+    raise(Exception("ledger should be a dictionary"))
+  ledger[date] = new_data
+  return 
 
 if __name__ == "__main__": 
+  # get the absolute path to the data file
+  team_data_file = os.path.join(get_raw_data_path(), data_file_name)
+
   team_members = get_team_members()
-  print(team_members)
-  team_data = {'date': team_members}
+  
   # Get the page url for a member 
-  page_url = team_members[0]['pageUrl']
-  donor_page = get_memeber_page(page_url)
+  #page_url = team_members[0]['pageUrl']
+  #donor_page = get_memeber_page(page_url)
   
   # test if the 'ericssoncommunity' can be found in the page
-  assert donor_page[page_url].find('ericssoncommunity') != -1
+  #assert donor_page[page_url].find('ericssoncommunity') != -1
   
-  # Save to file
-  save_to_file(data_file_name, team_data)
+  # update the ledger file with new team member data
+  team_ledger = load_from_file(team_data_file)
+  update_ledger(team_ledger, team_members)
+  save_to_file(team_data_file, team_ledger)
+  print(json.dumps(team_ledger, indent=4))
+    
   
-  print("Sending email ... ")
-  send_email(data_file_name)
+  #print("Sending email ... ")
+  #send_email(data_file_name)
 
   print("Done!")
   
