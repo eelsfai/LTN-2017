@@ -15,7 +15,6 @@ services:
             condition: on-failure
         environment:
           - DEBUG=False
-          #- MAIL_PASSWORD="skjqw0pvn@#Rar23#^(&^%"
         env_file:
           - secrets.env
 networks:
