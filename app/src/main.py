@@ -37,7 +37,7 @@ def get_team_members():
   team_members = json.loads(response_dict['d'])
   return team_members
 
-def get_memeber_page(url):
+def get_member_page(url):
   '''
   Get the page for the list of all_supporters to a team member and returns it as a str blob 
   return: 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
   for member in tqdm(team_members): 
     p_url = member['pageUrl']
     name = member['name']
-    all_supporters[name] = pars_member_page(get_memeber_page(p_url))
+    all_supporters[name] = pars_member_page(get_member_page(p_url))
     
   #update the supporter's ledger in the files
   ledger_supporters = load_from_file(supporters_data_file)
