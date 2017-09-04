@@ -6,7 +6,7 @@ Created on Aug 29, 2017
 from requests import Session
 import json
 from email_handler import send_email
-
+import time
 data_file_name = 'web_data_json.txt'
 
 
@@ -67,7 +67,8 @@ def load_from_file(file_name):
 if __name__ == "__main__": 
   team_members = get_team_members()
   print(team_members)
-  team_data = {'date': team_members}
+  date = time.strftime("%d/%m/%Y")
+  team_data = {date: team_members}
   # Get the page url for a member 
   page_url = team_members[0]['pageUrl']
   donor_page = get_memeber_page(page_url)
@@ -79,7 +80,7 @@ if __name__ == "__main__":
   save_to_file(data_file_name, team_data)
   
   print("Sending email ... ")
-  send_email(data_file_name)
+  send_email()
 
   print("Done!")
   
