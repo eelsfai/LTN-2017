@@ -10,7 +10,7 @@ from email_handler import send_email
 data_file_name = 'web_data_json.txt'
 
 
-def make_ajax_request():
+def get_team_members():
   '''
   Get the data from the web. This tries to imitate the 'function getTeamMembers() {' in the 
   source code of the website here: view-source:https://secure.e2rm.com/registrant/TeamFundraisingPage.aspx?teamID=738302&langPref=en-CA
@@ -65,7 +65,7 @@ def load_from_file(file_name):
 
 
 if __name__ == "__main__": 
-  team_members = make_ajax_request()
+  team_members = get_team_members()
   print(team_members)
   team_data = {'date': team_members}
   # Get the page url for a member 

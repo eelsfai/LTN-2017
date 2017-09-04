@@ -2,7 +2,7 @@
 docker stop $(docker ps -a -q)
 
 # remove all container
-# docker rm $(docker ps -a -q)
+ docker rm $(docker ps -a -q)
 
 # remove all container images 
 # docker rmi --force $(docker images -q)
