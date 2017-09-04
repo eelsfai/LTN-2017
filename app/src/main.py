@@ -4,6 +4,7 @@ Created on Aug 29, 2017
 @author: Hossein
 '''
 from requests import Session
+import argparse
 import json
 import os 
 from email_handler import send_email, get_raw_data_path
@@ -122,6 +123,11 @@ def parse_member_page(html_page):
   return supporters
 
 if __name__ == "__main__": 
+  parser = argparse.ArgumentParser(description='Data analytics and Visualization for LightTheNight (DaViL)')
+  parser.add_argument('--no-email', dest='send_email', default=True, action='store_false')
+
+  args = parser.parse_args()
+
   # get the absolute path to the data files
   team_data_file = os.path.join(get_raw_data_path(), file_name_member_data)
   supporters_data_file = os.path.join(get_raw_data_path(), file_name_supporter_data)
@@ -147,14 +153,10 @@ if __name__ == "__main__":
   ledger_supporters = load_from_file(supporters_data_file)
   update_ledger(ledger_supporters, all_supporters)
   save_to_file(supporters_data_file, ledger_supporters)
-  
-  
-  
-  #print("Sending email ... ")
-  #send_email(file_name_member_data)
+
+  if args.send_email:
+    #print("Sending email ... ")
+    #send_email(file_name_member_data)
+    pass
 
   print("Done!")
-  
-  
-  
-

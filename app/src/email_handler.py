@@ -61,7 +61,7 @@ def send_email(data_file_name, to_addr):
   from email.mime.application import MIMEApplication
   from email.mime.multipart import MIMEMultipart
   from email.mime.text import MIMEText 
- 
+
   from_addr = MAIL_USERNAME
   #to_addr = ["hossein.seyedmehdi@gmail.com", "hossein.seyedmehdi@ericsson.com"]
   to_addr_str = ''
