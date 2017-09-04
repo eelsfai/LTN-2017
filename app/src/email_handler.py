@@ -12,7 +12,21 @@ MAIL_USERNAME = 'ltn.ericsson@gmail.com'
 
 MAIL_PASSWORD = os.environ['MAIL_PASSWORD']
 
-def send_email(data_file_name):
+def getFilesToBeSent():
+
+    filesInDirectory = os.listdir(".") # Can specify location instead, "/home/username/..."
+    index = []
+    filesToBeSent = []
+    for i in range(0,len(filesInDirectory)):     #Gets location of elements not containing .py
+        if not(filesInDirectory[i].endswith(".py")):
+            index.append(i)
+    for i in index:    #Puts files not containing .py in a list.
+        filesToBeSent.append(filesInDirectory[i])     
+    return filesToBeSent
+
+
+
+def send_email():
   ''' 
   19.1.14. email: Examples
   https://docs.python.org/3.4/library/email-examples.html
@@ -36,15 +50,18 @@ def send_email(data_file_name):
    
   body = "The Email Body"
   msg.attach(MIMEText(body, 'plain'))
+  data_file_names = getFilesToBeSent()
+  for i in data_file_names:
+    #Attach the files 
+    with open(i, "rb") as fil:
+      part = MIMEApplication(
+          fil.read(),
+          Name = basename(i) )
+    # After the file is closed
+    part['Content-Disposition'] = 'attachment; filename="%s"' % basename(i)
+    msg.attach(part)
+
   
-  #Attach the file 
-  with open(data_file_name, "rb") as fil:
-    part = MIMEApplication(
-        fil.read(),
-        Name = basename(data_file_name) )
-  # After the file is closed
-  part['Content-Disposition'] = 'attachment; filename="%s"' % basename(data_file_name)
-  msg.attach(part)
    
   server = smtplib.SMTP(MAIL_SERVER, MAIL_PORT)
   server.starttls()
@@ -55,4 +72,3 @@ def send_email(data_file_name):
   server.quit()
   
   return
-  
