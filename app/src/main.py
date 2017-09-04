@@ -52,7 +52,7 @@ def save_to_file(file_name, arg_dict):
   Save the dictionary of data into a file
   '''
   with open(file_name, 'w') as f: 
-    f.write(json.dumps(arg_dict, indent=4))
+    f.write(json.dumps(arg_dict, sort_keys=True, indent=4))
     
 def load_from_file(file_name):
   '''
