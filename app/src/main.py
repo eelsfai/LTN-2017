@@ -7,9 +7,11 @@ from requests import Session
 import json
 import os 
 from email_handler import send_email, get_raw_data_path
-from app.src.email_handler import get_raw_data_path
+import logging
+from tqdm import tqdm
 
-data_file_name = 'web_data_json.txt'
+file_name_member_data = 'member_data.txt'
+file_name_supporter_data = 'supporter_data.txt'
 
 
 def get_team_members():
@@ -37,21 +39,20 @@ def get_team_members():
 
 def get_memeber_page(url):
   '''
-  Get the page for the list of donors to a team member and returns it as a str blob 
+  Get the page for the list of all_supporters to a team member and returns it as a str blob 
   return: 
-    : {'url' : 'a_str_representing_the_page'}
+    :str : a str representing the page
   '''
   session = Session()
   r = session.get(url)
-  result = {url : r.text} 
-  return result
+  return r.text
 
 def save_to_file(file_name, arg_dict):
   '''
   Save the dictionary of data into a file
   '''
   with open(file_name, 'w') as f: 
-    f.write(json.dumps(arg_dict))
+    f.write(json.dumps(arg_dict, indent=4))
     
 def load_from_file(file_name):
   '''
@@ -63,13 +64,15 @@ def load_from_file(file_name):
     with open(file_name) as f: 
       file_text = f.read()
     return json.loads(file_text)
-  except: 
+  except Exception as e: 
+    # log the error and return None in case there is any problem
+    logging.error(e)
     return 
 
 def update_ledger(ledger, new_data, date = None):
   '''
   A ledger is a dictionary of the history of data. The format of a ledger would be 
-  {'a_date': a_data_blob, 'nother_date': another_data_blob, ... } 
+  {'a_date': a_data_blob, 'another_date': another_data_blob, ... } 
   If the date exists in the ledger, this function would replace the data for 
   that date with the new_data; otherwise, it will add a new entry with the new data
   and date
@@ -89,28 +92,66 @@ def update_ledger(ledger, new_data, date = None):
   ledger[date] = new_data
   return 
 
+def pars_member_page(html_page):
+  '''
+  this function takes the page of a member in raw html format and pars it. 
+  input
+    :str : a raw html 
+  return
+    :list : a list of dictionaries for supporters in the format of [{'name':'a_name', ...}, {...}, ...] 
+  '''
+  supporters = []
+  from bs4 import BeautifulSoup
+  soup = BeautifulSoup(html_page, 'html.parser')
+  timeline_items = soup.find_all(class_="timeline-item")
+  #print(timeline_items[0])
+  for ti in timeline_items:
+    supporter_info = list(ti.contents[3].stripped_strings)
+    supporter_name = supporter_info[0]
+    amount_donated = supporter_info[1][supporter_info[1].find('$') + 1:]
+    donation_time = supporter_info[3]
+    supporter_message = ''
+    if len(supporter_info) > 4: 
+      supporter_message = supporter_info[4]
+    d = {}
+    d['supporter_name'] = supporter_name
+    d['amount_dollar'] = amount_donated
+    d['time'] = donation_time
+    d['message'] = supporter_message
+    supporters.append(d)
+  return supporters
+
 if __name__ == "__main__": 
-  # get the absolute path to the data file
-  team_data_file = os.path.join(get_raw_data_path(), data_file_name)
+  # get the absolute path to the data files
+  team_data_file = os.path.join(get_raw_data_path(), file_name_member_data)
+  supporters_data_file = os.path.join(get_raw_data_path(), file_name_supporter_data)
 
   team_members = get_team_members()
-  
-  # Get the page url for a member 
-  #page_url = team_members[0]['pageUrl']
-  #donor_page = get_memeber_page(page_url)
-  
-  # test if the 'ericssoncommunity' can be found in the page
-  #assert donor_page[page_url].find('ericssoncommunity') != -1
-  
+
   # update the ledger file with new team member data
   team_ledger = load_from_file(team_data_file)
   update_ledger(team_ledger, team_members)
   save_to_file(team_data_file, team_ledger)
-  print(json.dumps(team_ledger, indent=4))
+
+  #
+  # get each team member's page showing the supporters and detailed amoutn of donations
+  #
+  print("Getting all the pages for team members...")
+  all_supporters = {}
+  for member in tqdm(team_members): 
+    p_url = member['pageUrl']
+    name = member['name']
+    all_supporters[name] = pars_member_page(get_memeber_page(p_url))
     
+  #update the supporter's ledger in the files
+  ledger_supporters = load_from_file(supporters_data_file)
+  update_ledger(ledger_supporters, all_supporters)
+  save_to_file(supporters_data_file, ledger_supporters)
+  
+  
   
   #print("Sending email ... ")
-  #send_email(data_file_name)
+  #send_email(file_name_member_data)
 
   print("Done!")
   
