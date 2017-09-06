@@ -7,7 +7,8 @@ from requests import Session
 import argparse
 import json
 import os 
-from email_handler import send_email, get_raw_data_path
+from email_handler import send_email
+from utils import get_raw_data_path
 import logging
 from tqdm import tqdm
 
@@ -107,6 +108,7 @@ def parse_member_page(html_page):
   timeline_items = soup.find_all(class_="timeline-item")
   #print(timeline_items[0])
   for ti in timeline_items:
+    # get the content of a supporter. I know! '3' is a magic number, but after some digging the was set.
     supporter_info = list(ti.contents[3].stripped_strings)
     d = {}
     d['supporter_name'] = supporter_info[0]
@@ -152,6 +154,6 @@ if __name__ == "__main__":
 
   if args.send_email:
     print("Sending e-mail...")
-    send_email(get_raw_data_path())
+    #send_email(get_raw_data_path())
 
   print("Done!")
