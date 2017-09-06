@@ -4,6 +4,7 @@ Created on Aug 29, 2017
 @author: Hossein
 '''
 from requests import Session
+import argparse
 import json
 import os 
 from email_handler import send_email, get_raw_data_path
@@ -37,7 +38,7 @@ def get_team_members():
   team_members = json.loads(response_dict['d'])
   return team_members
 
-def get_memeber_page(url):
+def get_member_page(url):
   '''
   Get the page for the list of all_supporters to a team member and returns it as a str blob 
   return: 
@@ -52,7 +53,7 @@ def save_to_file(file_name, arg_dict):
   Save the dictionary of data into a file
   '''
   with open(file_name, 'w') as f: 
-    f.write(json.dumps(arg_dict, indent=4))
+    f.write(json.dumps(arg_dict, sort_keys=True, indent=4))
     
 def load_from_file(file_name):
   '''
@@ -92,9 +93,9 @@ def update_ledger(ledger, new_data, date = None):
   ledger[date] = new_data
   return 
 
-def pars_member_page(html_page):
+def parse_member_page(html_page):
   '''
-  this function takes the page of a member in raw html format and pars it. 
+  this function takes the page of a member in raw html format and parses it.
   input
     :str : a raw html 
   return
@@ -118,6 +119,11 @@ def pars_member_page(html_page):
   return supporters
 
 if __name__ == "__main__": 
+  parser = argparse.ArgumentParser(description='Data analytics and Visualization for LightTheNight (DaViL)')
+  parser.add_argument('--no-email', dest='send_email', default=True, action='store_false')
+
+  args = parser.parse_args()
+
   # get the absolute path to the data files
   team_data_file = os.path.join(get_raw_data_path(), file_name_member_data)
   supporters_data_file = os.path.join(get_raw_data_path(), file_name_supporter_data)
@@ -137,20 +143,15 @@ if __name__ == "__main__":
   for member in tqdm(team_members): 
     p_url = member['pageUrl']
     name = member['name']
-    all_supporters[name] = pars_member_page(get_memeber_page(p_url))
+    all_supporters[name] = parse_member_page(get_member_page(p_url))
     
   #update the supporter's ledger in the files
   ledger_supporters = load_from_file(supporters_data_file)
   update_ledger(ledger_supporters, all_supporters)
   save_to_file(supporters_data_file, ledger_supporters)
-  
-  
-  
-  #print("Sending email ... ")
-  #send_email(file_name_member_data)
+
+  if args.send_email:
+    print("Sending e-mail...")
+    send_email(get_raw_data_path())
 
   print("Done!")
-  
-  
-  
-
