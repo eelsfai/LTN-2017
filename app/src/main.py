@@ -155,8 +155,7 @@ if __name__ == "__main__":
   save_to_file(supporters_data_file, ledger_supporters)
 
   if args.send_email:
-    #print("Sending email ... ")
-    #send_email(file_name_member_data)
-    pass
+    print("Sending e-mail...")
+    send_email(get_raw_data_path())
 
   print("Done!")
