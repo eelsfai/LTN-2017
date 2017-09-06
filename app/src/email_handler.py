@@ -10,10 +10,6 @@ MAIL_SERVER = 'smtp.googlemail.com'
 MAIL_PORT = 587
 MAIL_USERNAME = 'ltn.ericsson@gmail.com'
 
-MAIL_PASSWORD = ''
-if 'MAIL_PASSWORD' in os.environ: 
-  MAIL_PASSWORD = os.environ['MAIL_PASSWORD']
-
 def get_data_path():
   '''
   Gets the path of the "data" directory, which will have subdirectories
@@ -75,6 +71,11 @@ def send_email(data_dir, recipients=[ MAIL_USERNAME ]):
   from email.mime.multipart import MIMEMultipart
   from email.mime.text import MIMEText 
 
+  if 'MAIL_PASSWORD' not in os.environ:
+    raise Exception("Could not find the \"MAIL_PASSWORD\" environment variable.")
+
+  mail_password = os.environ['MAIL_PASSWORD']
+
   msg = MIMEMultipart()
   msg['From'] = MAIL_USERNAME
   msg['To'] = ', '.join(recipients)
@@ -98,6 +99,6 @@ def send_email(data_dir, recipients=[ MAIL_USERNAME ]):
    
   server = smtplib.SMTP(MAIL_SERVER, MAIL_PORT)
   server.starttls()
-  server.login(MAIL_USERNAME, MAIL_PASSWORD)
+  server.login(MAIL_USERNAME, mail_password)
   server.sendmail(MAIL_USERNAME, recipients, text)
   server.quit()
