@@ -92,9 +92,9 @@ def update_ledger(ledger, new_data, date = None):
   ledger[date] = new_data
   return 
 
-def pars_member_page(html_page):
+def parse_member_page(html_page):
   '''
-  this function takes the page of a member in raw html format and pars it. 
+  this function takes the page of a member in raw html format and parses it.
   input
     :str : a raw html 
   return
@@ -141,7 +141,7 @@ if __name__ == "__main__":
   for member in tqdm(team_members): 
     p_url = member['pageUrl']
     name = member['name']
-    all_supporters[name] = pars_member_page(get_member_page(p_url))
+    all_supporters[name] = parse_member_page(get_member_page(p_url))
     
   #update the supporter's ledger in the files
   ledger_supporters = load_from_file(supporters_data_file)
