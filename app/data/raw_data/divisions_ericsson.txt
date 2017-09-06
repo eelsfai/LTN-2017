@@ -1,0 +1,4 @@
+[
+    {'div_name': 'radio', 'description': 'Radio'}, 
+    {'div_name': 'bb', 'description': 'BaseBand'}, 
+]

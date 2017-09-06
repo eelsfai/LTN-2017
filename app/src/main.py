@@ -107,17 +107,13 @@ def pars_member_page(html_page):
   #print(timeline_items[0])
   for ti in timeline_items:
     supporter_info = list(ti.contents[3].stripped_strings)
-    supporter_name = supporter_info[0]
-    amount_donated = supporter_info[1][supporter_info[1].find('$') + 1:]
-    donation_time = supporter_info[3]
-    supporter_message = ''
-    if len(supporter_info) > 4: 
-      supporter_message = supporter_info[4]
     d = {}
-    d['supporter_name'] = supporter_name
-    d['amount_dollar'] = amount_donated
-    d['time'] = donation_time
-    d['message'] = supporter_message
+    d['supporter_name'] = supporter_info[0]
+    d['amount_dollar'] = supporter_info[1][supporter_info[1].find('$') + 1:]
+    d['time'] = supporter_info[3]
+    d['message'] = ''
+    if len(supporter_info) > 4: 
+      d['message'] = supporter_info[4]
     supporters.append(d)
   return supporters
 
