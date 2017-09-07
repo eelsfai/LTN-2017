@@ -154,6 +154,6 @@ if __name__ == "__main__":
 
   if args.send_email:
     print("Sending e-mail...")
-    #send_email(get_raw_data_path())
+    send_email(get_raw_data_path())
 
   print("Done!")

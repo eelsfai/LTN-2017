@@ -5,11 +5,14 @@ Created on Aug 30, 2017
 '''
 
 import os 
+from utils import get_raw_data_path, get_visual_data_path
 
 MAIL_SERVER = 'smtp.googlemail.com'
 MAIL_PORT = 587
 MAIL_USERNAME = 'ltn.ericsson@gmail.com'
 
+DEFAULT_SUBJECT = 'Stats for LTN'
+DEFAULT_BODY = 'Here are the stats for the Light The Night.'
 
 def get_files_to_be_sent(data_dir):
   '''
@@ -33,10 +36,43 @@ def get_files_to_be_sent(data_dir):
 
   return files_to_be_sent
 
-def send_email(data_dir, recipients=[ MAIL_USERNAME ]):
+def get_recipients(data_dir):
+  '''
+  Obtains a listing of the emails inside the directory specified by data_dir,
+  inputs 
+    :str : paths of files in data_dir.
+  '''
+  files_in_dir = os.listdir(data_dir)
+  file_recipients = ''
+  
+  # get the file with name .recipient 
+  for file_in_dir in files_in_dir:
+    if file_in_dir == ".recipients":
+      file_recipients = os.path.join(data_dir, file_in_dir)
+  # return if there is no such file
+  if not file_recipients: 
+    return
+  # read the emails from the file
+  with open(file_recipients) as f: 
+    flines = f.readlines()
+    # strip the lines from white spaces, e.g., \n, ...
+    recipients = [s.strip() for s in flines]
+  # return if there is no emails  to use
+  if not recipients: 
+    return
+  
+  return recipients
+
+def send_email(data_dir, recipients = None, subject = DEFAULT_SUBJECT, body = DEFAULT_BODY):
   ''' 
+  Emails the files in data_dir. If the recipients are not 
+  given as input to the function, it will use the emails 
+  listed in a hidden file in the same directory.  
   19.1.14. email: Examples
   https://docs.python.org/3.4/library/email-examples.html
+  input: 
+    :str : an input directory
+    :list : a list of email addresses 
   '''
 
   import smtplib
@@ -52,10 +88,13 @@ def send_email(data_dir, recipients=[ MAIL_USERNAME ]):
 
   msg = MIMEMultipart()
   msg['From'] = MAIL_USERNAME
+  if not recipients: 
+    recipients = get_recipients(data_dir)
+    if not recipients: 
+      raise Exception("There is no recipient email(s).")
   msg['To'] = ', '.join(recipients)
-  msg['Subject'] = "Test email for LTN"
+  msg['Subject'] = subject
    
-  body = "The Email Body"
   msg.attach(MIMEText(body, 'plain'))
 
   for data_file_name in get_files_to_be_sent(data_dir):
@@ -76,3 +115,12 @@ def send_email(data_dir, recipients=[ MAIL_USERNAME ]):
   server.login(MAIL_USERNAME, mail_password)
   server.sendmail(MAIL_USERNAME, recipients, text)
   server.quit()
+
+if __name__ == "__main__":
+  print("sending emails...")
+  d = get_raw_data_path() 
+  print("recipient list:")
+  print(get_recipients(d))
+  send_email(d)
+  
+  print("Done!")
