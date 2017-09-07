@@ -88,7 +88,7 @@ def update_ledger(ledger, new_data, date = None):
   #get the date: 
   if not date: 
     from time import gmtime, strftime
-    date = strftime("%Y%m%d", gmtime())
+    date = strftime("%Y-%m-%d", gmtime())
   if type(ledger) != type(dict()):
     raise(Exception("ledger should be a dictionary"))
   ledger[date] = new_data

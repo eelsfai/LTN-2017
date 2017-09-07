@@ -31,7 +31,6 @@ class TestScrapingMethods(unittest.TestCase):
     #
     # test loading from the file and if the name of Johanna can be found
     #
-    print('loading from the file...')
     member_data = main.load_from_file(data_file_name)
     a_day_data = {}
     # take the first item in the dictionary; doesn'e matter which one it is
@@ -46,17 +45,17 @@ class TestScrapingMethods(unittest.TestCase):
     
   #@unittest.skip("")
   def test_update_ledger(self):
-    test_ledger = {'20170901': [{'name': 'Johanna', 'amount': '345$'}, {'name':"Hossein", 'amount': '22$'}], 
-                   '20170901': [{'name': 'Johanna', 'amount': '355$'}, {'name':"Hossein", 'amount': '23$'}]}
+    test_ledger = {'2017-09-01': [{'name': 'Johanna', 'amount': '345$'}, {'name':"Hossein", 'amount': '22$'}], 
+                   '2017-09-02': [{'name': 'Johanna', 'amount': '355$'}, {'name':"Hossein", 'amount': '23$'}]}
     new_data = [{'name': 'Johanna', 'amount': '355$'}, {'name':"Hossein", 'amount': '23$'}, {'name':"Ron", 'amount': '100$'}]
     main.update_ledger(test_ledger, new_data)
     from time import gmtime, strftime
-    today_date = strftime("%Y%m%d", gmtime())
+    today_date = strftime("%Y-%m-%d", gmtime())
     self.assertEqual(today_date in test_ledger, True, "The data has not been added to the ledger")
     # test updating
     update_data = [{'name': 'Johanna', 'amount': '355$'}, {'name':"Hossein", 'amount': '50$'}]
-    main.update_ledger(test_ledger, update_data, '20170901')
-    self.assertEqual(test_ledger['20170901'][1]['amount'] == '50$', True, "Ledger is not updated.")
+    main.update_ledger(test_ledger, update_data, '2017-09-01')
+    self.assertEqual(test_ledger['2017-09-01'][1]['amount'] == '50$', True, "Ledger is not updated.")
     #
     #main.update_ledger(['list', 'of', 'some string'], 'something', '20170901')
     
@@ -64,14 +63,14 @@ class TestScrapingMethods(unittest.TestCase):
     # get a page
     # url for Johanna's page 
     p_url = "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3697209&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA"
-    raw_html = main.get_memeber_page(p_url)
-    print("Parsing the page ...")
-    parsed_page = main.pars_member_page(raw_html)
-    print(json.dumps(parsed_page, indent=4))
+    raw_html = main.get_member_page(p_url)
+    #print("Parsing the page ...")
+    parsed_page = main.parse_member_page(raw_html)
+    #print(json.dumps(parsed_page, indent=4))
     # find 'ericssoncommunity'
     found_ericssoncommunity = False
     for item in parsed_page: 
-      if item['name'] == 'ericssoncommunity':
+      if item['supporter_name'] == 'ericssoncommunity':
         if item['amount_dollar'] == '27.38':
           found_ericssoncommunity = True
     self.assertEqual(found_ericssoncommunity, True, "Could not pars the page.")
