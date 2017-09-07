@@ -11,6 +11,7 @@ from email_handler import send_email
 from utils import get_raw_data_path
 import logging
 from tqdm import tqdm
+from app.src.utils import get_visual_data_path
 
 file_name_member_data = 'member_data.txt'
 file_name_supporter_data = 'supporter_data.txt'
@@ -154,6 +155,7 @@ if __name__ == "__main__":
 
   if args.send_email:
     print("Sending e-mail...")
-    send_email(get_raw_data_path())
+    send_email(get_raw_data_path(), body="Test...\nAuto generated email.")
+    send_email(get_visual_data_path(), body="Test sending visual charts...\nAuto generated email.")
 
   print("Done!")
