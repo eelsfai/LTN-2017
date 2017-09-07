@@ -9,8 +9,10 @@ contains the function to generate the jpg's
 import os 
 from utils import get_visual_data_path
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
-from turtledemo.__main__ import font_sizes
+from datetime import datetime as dt 
+
 
 IMG_QUALITY = 200 # dpi
 
@@ -63,25 +65,40 @@ def generate_time_series(xtime, values, file_name):
   if len(xtime) != len(values):
     raise ValueError("The size of lables and values must be equal.")
 
-  from datetime import datetime as dt 
-  print(dt.strptime(xtime[0], "%Y-%m-%d"))
   x = np.array([dt.strptime(t, "%Y-%m-%d") for t in xtime])
-  print(x)
   y = np.array(values)
+  dates = matplotlib.dates.date2num(x)
+  print(dates)
+  
   plt.clf()
-  plt.plot(x, values)
+  plt.plot_date(dates, y, fmt="bo-")
+  for loc, spine in plt.axes().axes.spines.items(): 
+    if loc != 'bottom': 
+      # no spine if it is not at the bottom
+      spine.set_color('none')
+  #remove y ticks
+  plt.yticks([])
+  # write the data point values on them
+  for x1, y1 in zip(x, y): 
+    plt.text(x1, y1, '$%.0f' % y1, ha='right', va= 'bottom', fontsize = 15)
+  plt.gcf().autofmt_xdate()
+  plt.ylim(0, 1.1 * max(y) ) 
+  plt.title("LTN - Total fund raised", fontsize=20)
   plt.savefig(file_name, dpi=IMG_QUALITY)
 
 if __name__ == "__main__":
+  # generate the bar chart for tema competition 
   file_name = os.path.join(get_visual_data_path(), 'divisions.jpg')
   v = [326, 5000, 20]
   l = ['Base Band', 'Radio', 'Indoor']
   generate_bar_chart(l, v,  file_name) 
   
+  # generate the total fund raised as a function of time
   file_name = os.path.join(get_visual_data_path(), 'time_series.jpg')
-  t = ['2017-09-01', '2017-09-02', '2017-09-04']
-  v_ = [10, 20, 30]
-  generate_time_series(t, v_, file_name)
+  t = ['2017-09-01', '2017-09-02', '2017-09-04', '2017-09-05', '2017-09-06', '2017-09-07']
+  v = [10, 20, 30, 45, 55, 56]
+  generate_time_series(t, v, file_name)
+  
   print('Done!')
   
   
