@@ -65,8 +65,8 @@ def get_recipients(data_dir):
 
 def send_email(data_dir, recipients = None, subject = DEFAULT_SUBJECT, body = DEFAULT_BODY):
   ''' 
-  Emails the files in data_dir. If the recipients are not 
-  given as input to the function, it will use the emails 
+  This function emails the files in data_dir. If the recipients 
+  are not  given as input to the function, it will use the emails 
   listed in a hidden file in the same directory.  
   19.1.14. email: Examples
   https://docs.python.org/3.4/library/email-examples.html
@@ -91,7 +91,7 @@ def send_email(data_dir, recipients = None, subject = DEFAULT_SUBJECT, body = DE
   if not recipients: 
     recipients = get_recipients(data_dir)
     if not recipients: 
-      raise Exception("There is no recipient email(s).")
+      raise Exception("There is no recipient email(s). Create a '.recipient' file and include the emials in it.")
   msg['To'] = ', '.join(recipients)
   msg['Subject'] = subject
    

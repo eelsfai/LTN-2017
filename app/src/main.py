@@ -138,7 +138,7 @@ if __name__ == "__main__":
   save_to_file(team_data_file, team_ledger)
 
   #
-  # get each team member's page showing the supporters and detailed amoutn of donations
+  # get each team member's page showing the supporters and detailed amount of donations
   #
   print("Getting all the pages for team members...")
   all_supporters = {}
@@ -152,6 +152,7 @@ if __name__ == "__main__":
   update_ledger(ledger_supporters, all_supporters)
   save_to_file(supporters_data_file, ledger_supporters)
 
+  # send email
   if args.send_email:
     print("Sending e-mail...")
     send_email(get_raw_data_path(), body="Test...\nAuto generated email.")
