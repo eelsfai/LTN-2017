@@ -13,8 +13,8 @@ import logging
 from tqdm import tqdm
 from bs4 import BeautifulSoup
 
-file_name_member_data = 'member_data.txt'
-file_name_supporter_data = 'supporter_data.txt'
+FILE_NAME_MEMBERS = 'member_data.txt'
+FILE_NAME_SUPPORTERS = 'supporters_data.txt'
 
 
 def get_team_members():
@@ -127,8 +127,8 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   # get the absolute path to the data files
-  team_data_file = os.path.join(get_raw_data_path(), file_name_member_data)
-  supporters_data_file = os.path.join(get_raw_data_path(), file_name_supporter_data)
+  team_data_file = os.path.join(get_raw_data_path(), FILE_NAME_MEMBERS)
+  supporters_data_file = os.path.join(get_raw_data_path(), FILE_NAME_SUPPORTERS)
 
   team_members = get_team_members()
 
