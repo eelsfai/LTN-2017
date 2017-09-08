@@ -11,6 +11,7 @@ from email_handler import send_email
 from utils import get_raw_data_path, get_visual_data_path
 import logging
 from tqdm import tqdm
+from bs4 import BeautifulSoup
 
 file_name_member_data = 'member_data.txt'
 file_name_supporter_data = 'supporter_data.txt'
@@ -103,7 +104,6 @@ def parse_member_page(html_page):
     :list : a list of dictionaries for supporters in the format of [{'name':'a_name', ...}, {...}, ...] 
   '''
   supporters = []
-  from bs4 import BeautifulSoup
   soup = BeautifulSoup(html_page, 'html.parser')
   timeline_items = soup.find_all(class_="timeline-item")
   #print(timeline_items[0])
@@ -148,14 +148,14 @@ if __name__ == "__main__":
     all_supporters[name] = parse_member_page(get_member_page(p_url))
     
   #update the supporter's ledger in the files
-  ledger_supporters = load_from_file(supporters_data_file)
-  update_ledger(ledger_supporters, all_supporters)
-  save_to_file(supporters_data_file, ledger_supporters)
+  supporters_ledger = load_from_file(supporters_data_file)
+  update_ledger(supporters_ledger, all_supporters)
+  save_to_file(supporters_data_file, supporters_ledger)
 
   # send email
   if args.send_email:
     print("Sending e-mail...")
     send_email(get_raw_data_path(), body="Test...\nAuto generated email.")
-    send_email(get_visual_data_path(), body="Test sending visual charts...\nAuto generated email.")
+    #send_email(get_visual_data_path(), body="Test sending visual charts...\nAuto generated email.")
 
   print("Done!")

@@ -56,7 +56,7 @@ def get_recipients(data_dir):
   with open(file_recipients) as f: 
     flines = f.readlines()
     # strip the lines from white spaces, e.g., \n, ...
-    recipients = [s.strip() for s in flines]
+    recipients = [s.strip() for s in flines if len(s) > 0 and s[0] != '#']
   # return if there is no emails  to use
   if not recipients: 
     return
@@ -121,6 +121,6 @@ if __name__ == "__main__":
   d = get_raw_data_path() 
   print("recipient list:")
   print(get_recipients(d))
-  send_email(d)
+  #send_email(d)
   
   print("Done!")
