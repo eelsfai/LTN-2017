@@ -56,6 +56,7 @@ def get_recipients(data_dir):
   with open(file_recipients) as f: 
     flines = f.readlines()
     # strip the lines from white spaces, e.g., \n, ...
+    # and exclude lines that start with '#'
     recipients = [s.strip() for s in flines if len(s) > 0 and s[0] != '#']
   # return if there is no emails  to use
   if not recipients: 

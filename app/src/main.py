@@ -90,6 +90,7 @@ def update_ledger(ledger, new_data, date = None):
   if not date: 
     from time import gmtime, strftime
     date = strftime("%Y-%m-%d", gmtime())
+    print("today is {}.".format(date))
   if type(ledger) != type(dict()):
     raise(Exception("ledger should be a dictionary"))
   ledger[date] = new_data
@@ -155,7 +156,7 @@ if __name__ == "__main__":
   # send email
   if args.send_email:
     print("Sending e-mail...")
-    send_email(get_raw_data_path(), body="Test...\nAuto generated email.")
+    #send_email(get_raw_data_path(), body="Test...\nAuto generated email.")
     #send_email(get_visual_data_path(), body="Test sending visual charts...\nAuto generated email.")
 
   print("Done!")
