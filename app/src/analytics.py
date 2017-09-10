@@ -6,7 +6,6 @@ Created on Sep 9, 2017
 
 import utils
 import os
-import json
 import datetime
 import copy
 
@@ -34,7 +33,7 @@ def get_sum_donations(team_members):
     sum_donations += float(amount)
   return sum_donations
 
-def get_highest_donation(supporters_data, window_days):
+def get_highest_donation(supporters_data, window_days, a_base_day = None):
   '''
   return the highest donation within the past number of days 
   input: 
@@ -43,12 +42,16 @@ def get_highest_donation(supporters_data, window_days):
             For instance, if window_days == 1, the function gets the highest 
             donation today; if window_days == 7, the function will
             return the highest donation within the past week.
+    :str : a day in the format of YYYY-MM-DD
   return: 
     :dict : {'supporter_name': a_supporter_name, 'amount': a_dollar_amount, 
             'supportee': a_team_member, 'message': a_message }
   '''
   # get the day before the window day
-  cutoff_day = datetime.date.today() - datetime.timedelta(days = window_days)
+  base_day = datetime.date.today()
+  if a_base_day: 
+    base_day = str2date(a_base_day)
+  cutoff_day = base_day - datetime.timedelta(days = window_days)
   days_before_cutoff = [day for day in supporters_data if str2date(day) < cutoff_day]
   # Find the day 'YYYY-MM-DD' right before the window day
   day_before_cutoff = ''
@@ -74,10 +77,10 @@ def get_highest_donation(supporters_data, window_days):
       #print("supporter = " + json.dumps(supporter))
       supp = copy.copy(supporter)
       supp['team_member'] = member
-      # Subtract the supporters before the window day from the supporters 
-      # on the last day to get the donations within the days determined by 
-      # the window_days. But since these are lists of dictionaries, the 
-      # subtraction is not straight forward. 
+      # Subtract the set of supporters before the window day from the set 
+      # of supporters on the last day to get the donations within the days 
+      # determined by the window_days. But since these are lists of 
+      # dictionaries, the subtraction is not straight forward. 
       if supp not in supporters_before_cutoff: 
         supporters_within_window.append(supp)
   # find the highest donor:
@@ -86,34 +89,66 @@ def get_highest_donation(supporters_data, window_days):
     highest_donation = max(supporters_within_window, key = lambda x: float(x['amount_dollar'].replace('$', '')))
     return highest_donation
 
-def get_donation_by_division(team_data, divisions, member_division_mapping):
+def get_donation_by_division(team_ledger, ericsson_divisions, members_divisions):
+  '''
   return
+    :list : [('a_division_lable', money_raised_float), (...), ...]
+  '''
+  money_raised_by_div = {}
+  last_day= max(team_ledger)
+  # only use the last day
+  team = team_ledger[last_day]
+  for member in team:
+    member_name = member['name']
+    if member_name in members_divisions:
+      divis_of_member = members_divisions[member_name]
+      money_raised_by_member = float(member['amount'].replace("$", ""))
+      if divis_of_member in money_raised_by_div: 
+        money_raised_by_div[divis_of_member] += money_raised_by_member
+      else:
+        money_raised_by_div[divis_of_member] = money_raised_by_member
+  #print(json.dumps(money_raised_by_div))
+  result = []
+  for key in money_raised_by_div: 
+    div_description = ericsson_divisions[key]['description']
+    result.append((div_description, money_raised_by_div[key])) 
+  return result
+
+def get_historical_donaitons(team_data):
+  result = []
+  for day in team_data: 
+    sum_donation = get_sum_donations(team_data[day])
+    result.append((day, sum_donation))
+  result.sort(key= lambda x: x[0])
+  return result
+
 
 if __name__ == "__main__":
-  # tests
+  # Test sum donation 
   dstr = "2017-09-01"
   print("date str of {} is {}.".format(dstr, str2date(dstr)))
   #
   fname = os.path.join(utils.get_raw_data_path(), 'member_data.txt')
-  with open(fname) as f: 
-    f_data = f.read()
-    member_data = json.loads(f_data)
-  for k in member_data: 
-    member_data_snapshot = member_data[k]
-    #print(json.dumps(member_data_snapshot, indent=4))
-    print("sum donation is {} dollar".format(get_sum_donations(member_data_snapshot)))
-    break
+  member_data = utils.load_from_file(fname)
+  sum_donation = get_sum_donations(member_data[max(member_data)])
+  print("sum donation is {} dollar".format(sum_donation))
   
-  fname2 = os.path.join(utils.get_raw_data_path(), 'supporters_data.txt')
-  with open(fname2) as f: 
-    f_data = f.read()
-    supporters_data = json.loads(f_data)
-  print()
-  print("highest donation for past two days is {}.".format(get_highest_donation(supporters_data, 2))) 
-  print("highest donation during past week is {}.".format(get_highest_donation(supporters_data, 7))) 
-  print("highest donation overall is {}.".format(get_highest_donation(supporters_data, 1000))) 
-
-  print()
+  # Test donations by division 
+  fname = os.path.join(utils.get_raw_data_path(), 'members_divisions.txt')
+  members_divisions = utils.load_from_file(fname)
+  fname = os.path.join(utils.get_raw_data_path(), 'ericsson_divisions.txt')
+  ericsson_divisions = utils.load_from_file(fname)
+  dbd = get_donation_by_division(member_data, ericsson_divisions, members_divisions)
+  print(dbd)
   
+  # Test historical data 
+  print(get_historical_donaitons(member_data))
+  #
+  # Test the highest donation functionality 
+  #
+  #supporters_data = {'2017-09-08': {'Johanna Nicoletta': [{'supporter_name': 'ericssoncommunity', 'message': '', 'amount_dollar': '229.41', 'time': 'Jul 19, 2017 12:00 AM'}, {'supporter_name': 'ericssoncommunity', 'message': '', 'amount_dollar': '27.38', 'time': 'May 12, 2017 12:00 AM'}, {'supporter_name': 'Anonymous Donor', 'message': '', 'amount_dollar': '250.00', 'time': 'May 1, 2017 8:45 AM'}], 'Ericsson Activities': [{'supporter_name': 'Foosball Champion', 'message': '', 'amount_dollar': '78.00', 'time': 'Aug 30, 2017 9:35 PM'}, {'supporter_name': 'Bottle Drive -- Aug 8', 'message': '', 'amount_dollar': '194.00', 'time': 'Aug 9, 2017 10:07 AM'}], 'Hossein Seyedmehdi': [], 'Alireza Mirzaee': [{'supporter_name': 'Hossein', 'message': '', 'amount_dollar': '25.00', 'time': 'Aug 9, 2017 10:18 AM'}]}, '2017-09-05': {'Johanna Nicoletta': [{'supporter_name': 'ericssoncommunity', 'message': '', 'amount_dollar': '27.38', 'time': 'May 12, 2017 12:00 AM'}, {'supporter_name': 'Anonymous Donor', 'message': '', 'amount_dollar': '250.00', 'time': 'May 1, 2017 8:45 AM'}], 'Ericsson Activities': [{'supporter_name': 'Foosball Champion', 'message': '', 'amount_dollar': '78.00', 'time': 'Aug 30, 2017 9:35 PM'}, {'supporter_name': 'Bottle Drive -- Aug 8', 'message': '', 'amount_dollar': '194.00', 'time': 'Aug 9, 2017 10:07 AM'}], 'Hossein Seyedmehdi': [], 'Alireza Mirzaee': [{'supporter_name': 'Hossein', 'message': '', 'amount_dollar': '25.00', 'time': 'Aug 9, 2017 10:18 AM'}]}, '2017-09-09': {'Johanna Nicoletta': [{'supporter_name': 'ericssoncommunity', 'message': '', 'amount_dollar': '229.41', 'time': 'Jul 19, 2017 12:00 AM'}, {'supporter_name': 'ericssoncommunity', 'message': '', 'amount_dollar': '27.38', 'time': 'May 12, 2017 12:00 AM'}, {'supporter_name': 'Anonymous Donor', 'message': '', 'amount_dollar': '250.00', 'time': 'May 1, 2017 8:45 AM'}], 'Ericsson Activities': [{'supporter_name': 'Foosball Champion', 'message': '', 'amount_dollar': '78.00', 'time': 'Aug 30, 2017 9:35 PM'}, {'supporter_name': 'Bottle Drive -- Aug 8', 'message': '', 'amount_dollar': '194.00', 'time': 'Aug 9, 2017 10:07 AM'}], 'Hossein Seyedmehdi': [], 'Alireza Mirzaee': [{'supporter_name': 'Hossein', 'message': '', 'amount_dollar': '25.00', 'time': 'Aug 9, 2017 10:18 AM'}]}, '2017-09-06': {'Johanna Nicoletta': [{'supporter_name': 'ericssoncommunity', 'message': '', 'amount_dollar': '27.38', 'time': 'May 12, 2017 12:00 AM'}, {'supporter_name': 'Anonymous Donor', 'message': '', 'amount_dollar': '250.00', 'time': 'May 1, 2017 8:45 AM'}], 'Ericsson Activities': [{'supporter_name': 'Foosball Champion', 'message': '', 'amount_dollar': '78.00', 'time': 'Aug 30, 2017 9:35 PM'}, {'supporter_name': 'Bottle Drive -- Aug 8', 'message': '', 'amount_dollar': '194.00', 'time': 'Aug 9, 2017 10:07 AM'}], 'Hossein Seyedmehdi': [], 'Alireza Mirzaee': [{'supporter_name': 'Hossein', 'message': '', 'amount_dollar': '25.00', 'time': 'Aug 9, 2017 10:18 AM'}]}, '2017-09-03': {'Johanna Nicoletta': [{'supporter_name': 'ericssoncommunity', 'message': '', 'amount_dollar': '27.38', 'time': 'May 12, 2017 12:00 AM'}, {'supporter_name': 'Anonymous Donor', 'message': '', 'amount_dollar': '250.00', 'time': 'May 1, 2017 8:45 AM'}], 'Ericsson Activities': [{'supporter_name': 'Foosball Champion', 'message': '', 'amount_dollar': '78.00', 'time': 'Aug 30, 2017 9:35 PM'}, {'supporter_name': 'Bottle Drive -- Aug 8', 'message': '', 'amount_dollar': '194.00', 'time': 'Aug 9, 2017 10:07 AM'}], 'Hossein Seyedmehdi': [], 'Alireza Mirzaee': [{'supporter_name': 'Hossein', 'message': '', 'amount_dollar': '25.00', 'time': 'Aug 9, 2017 10:18 AM'}]}, '2017-09-07': {'Johanna Nicoletta': [{'supporter_name': 'ericssoncommunity', 'message': '', 'amount_dollar': '27.38', 'time': 'May 12, 2017 12:00 AM'}, {'supporter_name': 'Anonymous Donor', 'message': '', 'amount_dollar': '250.00', 'time': 'May 1, 2017 8:45 AM'}], 'Ericsson Activities': [{'supporter_name': 'Foosball Champion', 'message': '', 'amount_dollar': '78.00', 'time': 'Aug 30, 2017 9:35 PM'}, {'supporter_name': 'Bottle Drive -- Aug 8', 'message': '', 'amount_dollar': '194.00', 'time': 'Aug 9, 2017 10:07 AM'}], 'Hossein Seyedmehdi': [], 'Alireza Mirzaee': [{'supporter_name': 'Hossein', 'message': '', 'amount_dollar': '25.00', 'time': 'Aug 9, 2017 10:18 AM'}]}}
+  #print("highest donation today is {}.".format(get_highest_donation(supporters_data, 1, a_base_day='2017-09-10'))) 
+  
+    
 
 

@@ -1,4 +1,6 @@
 requests
 beautifulsoup4==4.6.0
 tqdm==4.11.2
+numpy
+matplotlib
 

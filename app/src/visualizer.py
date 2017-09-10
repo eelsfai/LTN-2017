@@ -10,13 +10,16 @@ import os
 from utils import get_visual_data_path
 import numpy as np
 import matplotlib
+# Force matplotlib to not use any Xwindows backend.
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+#plt.switch_backend('agg')
 from datetime import datetime as dt 
 
 
 IMG_QUALITY = 200 # dpi
 
-def generate_bar_chart(labels, values, file_name = None):
+def generate_bar_chart(label_value_pairs, file_name = None):
   '''
   generates a bar chart based on values, labels the x-axis with labels, 
   and saves it to a file. 
@@ -26,11 +29,11 @@ def generate_bar_chart(labels, values, file_name = None):
     :list : a list of values for each lable 
     :str : a file_name to save the final result in
   '''
-  if len(labels) != len(values):
-    raise ValueError("The size of lables and values must be equal.")
-  n = len(labels)
+  n = len(label_value_pairs)
   x = np.arange(n)
-  y = np.array(values)
+  labels = list(zip(*label_value_pairs))[0]
+  vals = list(zip(*label_value_pairs))[1]
+  y = np.array(vals)
   # Clear and create the plot
   plt.clf()
   plt.bar(x, y, facecolor='#ff9999', edgecolor='white', ) # 9999ff ff9999
@@ -38,7 +41,7 @@ def generate_bar_chart(labels, values, file_name = None):
   for x1,y1 in zip(x, y):
       plt.text(x1, y1, '$%.0f' % y1, ha='center', va= 'bottom', fontsize = 25)
   # Adjust the y size so that there is room for writings
-  plt.ylim(0, 1.2 * max(values) ) 
+  plt.ylim(0, 1.2 * max(y) ) 
   plt.xticks(x, labels, fontsize = 15)
   # no y axis ticks
   plt.yticks([])
@@ -53,22 +56,20 @@ def generate_bar_chart(labels, values, file_name = None):
   plt.savefig(file_name, dpi=IMG_QUALITY)
 
 
-def generate_time_series(xtime, values, file_name):
+def generate_time_series(time_value_pairs, file_name):
   '''
   generates a xtime series chart based on values, labels the x-axis with xtime, 
   and saves it to a file.
   input
-    :list : a list of times  
-    :list : a list of values for each xtime 
+    :list : a list of time_value pairs, e.g., [('YYYY-MM-DD', val_float), (...), ...]  
     :str : a file_name to save the final result in
   '''
-  if len(xtime) != len(values):
-    raise ValueError("The size of lables and values must be equal.")
-
-  x = np.array([dt.strptime(t, "%Y-%m-%d") for t in xtime])
-  y = np.array(values)
+  times = list(zip(*time_value_pairs))[0]
+  vals = list(zip(*time_value_pairs))[1]
+  x = np.array([dt.strptime(t, "%Y-%m-%d") for t in times])
+  y = np.array(vals)
   dates = matplotlib.dates.date2num(x)
-  print(dates)
+  #print(dates)
   
   plt.clf()
   plt.plot_date(dates, y, fmt="bo-")
@@ -79,25 +80,37 @@ def generate_time_series(xtime, values, file_name):
   #remove y ticks
   plt.yticks([])
   # write the data point values on them
-  for x1, y1 in zip(x, y): 
-    plt.text(x1, y1, '$%.0f' % y1, ha='right', va= 'bottom', fontsize = 15)
+  nlabels = 3
+  xy_list = list(zip(x, y))
+  if len(xy_list) > nlabels:
+    index_list = [] 
+    for i in range(nlabels): 
+      index_list.append(i * (len(xy_list) // nlabels))
+    index_list.append(len(xy_list) - 1)
+    for i in index_list: 
+      x1, y1 = xy_list[i]
+      plt.text(x1, y1, '$%.0f' % y1, ha='right', va= 'bottom', fontsize = 15)
+  else:
+    for x1, y1 in xy_list : 
+      plt.text(x1, y1, '$%.0f' % y1, ha='right', va= 'bottom', fontsize = 15)
+    
   plt.gcf().autofmt_xdate()
-  plt.ylim(0, 1.1 * max(y) ) 
+  plt.ylim(0.75 * min(y), 1.1 * max(y) ) 
   plt.title("LTN - Total fund raised", fontsize=20)
   plt.savefig(file_name, dpi=IMG_QUALITY)
 
 if __name__ == "__main__":
   # generate the bar chart for tema competition 
-  file_name = os.path.join(get_visual_data_path(), 'divisions.jpg')
-  v = [326, 5000, 20]
-  l = ['Base Band', 'Radio', 'Indoor']
-  generate_bar_chart(l, v,  file_name) 
+  file_name = os.path.join(get_visual_data_path(), 'divisions.png')
+  l = [('Base Band', 326), ('Radio', 1000), ('Indoor', 20)]
+  generate_bar_chart(l,  file_name) 
   
   # generate the total fund raised as a function of time
-  file_name = os.path.join(get_visual_data_path(), 'time_series.jpg')
-  t = ['2017-09-01', '2017-09-02', '2017-09-04', '2017-09-05', '2017-09-06', '2017-09-07']
-  v = [10, 20, 30, 45, 55, 56]
-  generate_time_series(t, v, file_name)
+  file_name = os.path.join(get_visual_data_path(), 'time_series.png')
+  time_vals = [('2017-09-01', 100), ('2017-09-02', 200), ('2017-09-04', 310), ('2017-09-05', 400),
+        ('2017-09-06', 450), ('2017-09-07', 600), ('2017-09-08', 600), ('2017-09-09', 600),
+        ('2017-09-10', 600), ('2017-09-12', 600)]
+  generate_time_series(time_vals, file_name)
   
   print('Done!')
   

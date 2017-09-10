@@ -3,7 +3,7 @@ Created on Sep 6, 2017
 
 @author: Hossein
 '''
-import os 
+import os, json, logging
 
 def get_data_path():
   '''
@@ -31,3 +31,26 @@ def get_visual_data_path():
     :str : the absolute path to the visualized data folder, e.g., /app/data/visual_data/
   ''' 
   return os.path.join(get_data_path(), 'visual_data')
+
+
+def save_to_file(file_name, arg_dict):
+  '''
+  Save the dictionary of data into a file
+  '''
+  with open(file_name, 'w') as f: 
+    f.write(json.dumps(arg_dict, sort_keys=True, indent=4))
+    
+def load_from_file(file_name):
+  '''
+  load the json from the file
+  return: 
+    :dict
+  '''
+  try: 
+    with open(file_name) as f: 
+      file_text = f.read()
+    return json.loads(file_text)
+  except Exception as e: 
+    # log the error and return None in case there is any problem
+    logging.error(e)
+    return 
