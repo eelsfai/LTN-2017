@@ -53,9 +53,11 @@ if __name__ == "__main__":
   msg = 'Auto Generated email -- Do not reply.\n ------- \n\n'
   msg += 'Thanks to LTN top supporters:\n'
   window_days_list = [("Yesterday", 2), ("Last 7 days", 7), ("Last 30 days", 30), ("Overall in 2017", 365)]
+  last_hd = None
   for window_days in window_days_list:
     highest_donation = analytics.get_highest_donation(supporters_ledger, window_days[1])
-    if highest_donation:
+    if highest_donation and highest_donation != last_hd:
+      last_hd = highest_donation
       msg += "\t" + window_days[0] + ":\n" 
       msg += '\t\t{} donated ${} to {}.\n'\
               .format(highest_donation['supporter_name'], highest_donation['amount_dollar'],
