@@ -32,6 +32,14 @@ def get_visual_data_path():
   ''' 
   return os.path.join(get_data_path(), 'visual_data')
 
+def get_admin_data_path():
+  '''
+  gets the absolute path to the folder that contains the data for admins
+  returns: 
+    :str : the absolute path to the visualized data folder, e.g., /app/data/admin_data/
+  ''' 
+  return os.path.join(get_data_path(), 'admin_data')
+
 
 def save_to_file(file_name, arg_dict):
   '''

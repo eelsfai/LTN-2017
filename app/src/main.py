@@ -50,9 +50,9 @@ if __name__ == "__main__":
   # Perform analytics 
   #
   print("Performing analytics...")
-  msg = 'FYI.\n----------\n'
+  msg = 'Auto Generated email -- Do not reply.\n ------- \n\n'
   msg += 'Thanks to LTN top supporters:\n'
-  window_days_list = [("Yesterday", 1), ("Last week", 7), ("Last month", 30), ("Overall", 1000)]
+  window_days_list = [("Yesterday", 2), ("Last 7 days", 7), ("Last 30 days", 30), ("Overall in 2017", 365)]
   for window_days in window_days_list:
     highest_donation = analytics.get_highest_donation(supporters_ledger, window_days[1])
     if highest_donation:
@@ -68,9 +68,13 @@ if __name__ == "__main__":
   members_divisions = utils.load_from_file(fname)
   fname = os.path.join(utils.get_raw_data_path(), 'ericsson_divisions.txt')
   ericsson_divisions = utils.load_from_file(fname)
-  dbd = analytics.get_donation_by_division(team_ledger, ericsson_divisions, members_divisions)
+  dbd = analytics.get_donation_by_division(team_ledger, members_divisions)
   # Historical donation 
   doantions_over_time = analytics.get_historical_donaitons(team_ledger)
+  # Get division of all team members 
+  mem_div = analytics.get_all_members_division(team_ledger, members_divisions)
+  fname = os.path.join(utils.get_admin_data_path(), 'members_divisions.txt')
+  utils.save_to_file(fname, mem_div)
   
   #
   # Visualization
@@ -87,6 +91,7 @@ if __name__ == "__main__":
   if args.send_email:
     print("Sending e-mail...")
     send_email(utils.get_raw_data_path(), body="Auto generated email.")
-    send_email(utils.get_visual_data_path(), subject = "Statistics for LTN as of today.", body=msg)
+    send_email(utils.get_visual_data_path(), subject = "Today's LTN stats for site monitors.", body=msg)
+    send_email(utils.get_admin_data_path(), subject = "LTN admin data.", body="Auto generated email...")
 
   print("Done!")

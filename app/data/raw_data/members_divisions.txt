@@ -1,5 +1,5 @@
 {
-    "Johanna Nicoletta" : "ran", 
-    "Hossein Seyedmehdi" : "radio", 
-    "Alireza Mirzaee" : "radio"
+    "Johanna Nicoletta" : "4G&5G RAN", 
+    "Hossein Seyedmehdi" : "4G&5G RAN", 
+    "Alireza Mirzaee" : "Radio"
 }
