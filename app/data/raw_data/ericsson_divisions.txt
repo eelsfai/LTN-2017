@@ -1,0 +1,7 @@
+{
+    "ran" : {"number_of_people": "450", "description": "4G&5G RAN"}, 
+    "radio" : {"number_of_people": "300", "description": "Radio"}, 
+    "indoor" : {"number_of_people": "130", "description": "Indoor"},
+    "otherrd" : {"number_of_people": "50", "description": "Other R&D"}, 
+    "business" : {"number_of_people": "70", "description": "Business Support"}
+}

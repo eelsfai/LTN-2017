@@ -3,87 +3,98 @@ Created on Aug 29, 2017
 
 @author: Hossein
 '''
-from requests import Session
-import json
+import argparse
+import os 
 from email_handler import send_email
-import time
-data_file_name = 'web_data_json.txt'
+import utils # import get_raw_data_path, get_visual_data_path
+from tqdm import tqdm
+import scraping
+import analytics
+import visualizer
 
-
-def get_team_members():
-  '''
-  Get the data from the web. This tries to imitate the 'function getTeamMembers() {' in the 
-  source code of the website here: view-source:https://secure.e2rm.com/registrant/TeamFundraisingPage.aspx?teamID=738302&langPref=en-CA
-  return: 
-    :list a list containing dictionaries of team members and their raised fund. 
-          example: 
-          [{'name': 'Johanna Nicoletta', 'isTeamCaptain': 'True', 'amount': '$277.38', 'facebookId': '1633682560', 'pageUrl': 'https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3697209&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA'}, {'name': 'Ericsson Activities', 'isTeamCaptain': 'False', 'amount': '$194.00', 'facebookId': '', 'pageUrl': 'https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3877056&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA'}, {'name': 'Alireza Mirzaee', 'isTeamCaptain': 'False', 'amount': '$25.00', 'facebookId': '', 'pageUrl': 'https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3869108&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA'}, {'name': 'Hossein Seyedmehdi', 'isTeamCaptain': 'False', 'amount': '$0.00', 'facebookId': '', 'pageUrl': 'https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3855399&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA'}]
-
-  '''
-  url_ajax_request = "https://secure.e2rm.com/registrant/WebServices/RegistrantWebService.asmx/GetTeamMembers"
-  session = Session()
-  # to get the payload, use the Chrome Developer Mode (alt+command+I in Mac) >> Network >> XHR >> GetTeamMembers >> Headers >> Request Payload  
-  payload = json.dumps({'teamID':738302,
-                        'languageCode':'en-CA',
-                        'sourceReferrerUrl':'https://secure.e2rm.com/registrant/search.aspx?eventid=210107&langpref=en-CA',
-                        'anonymousText':'Anonymous',
-                        'isOrderByAmount':'true'})
-  response = session.post(url = url_ajax_request, data = payload, headers={'content-type':'application/json'})
-  response_dict = response.json()
-  team_members = json.loads(response_dict['d'])
-  return team_members
-
-def get_memeber_page(url):
-  '''
-  Get the page for the list of donors to a team member and returns it as a str blob 
-  return: 
-    : {'url' : 'a_str_representing_the_page'}
-  '''
-  session = Session()
-  r = session.get(url)
-  result = {url : r.text} 
-  return result
-
-def save_to_file(file_name, arg_dict):
-  '''
-  Save the dictionary of data into a file
-  '''
-  with open(file_name, 'w') as f: 
-    f.write(json.dumps(arg_dict))
-    
-def load_from_file(file_name):
-  '''
-  load the json from the file
-  return: 
-    :dict
-  '''
-  with open(file_name) as f: 
-    file_text = f.read()
-  
-  return json.loads(file_text)
-
-
+FILE_NAME_MEMBERS = 'member_data.txt'
+FILE_NAME_SUPPORTERS = 'supporters_data.txt'
 
 if __name__ == "__main__": 
-  team_members = get_team_members()
-  print(team_members)
-  date = time.strftime("%d/%m/%Y")
-  team_data = {date: team_members}
-  # Get the page url for a member 
-  page_url = team_members[0]['pageUrl']
-  donor_page = get_memeber_page(page_url)
+  parser = argparse.ArgumentParser(description='Data analytics and Visualization for LightTheNight (DaViL)')
+  parser.add_argument('--no-email', dest='send_email', default=True, action='store_false')
+
+  args = parser.parse_args()
+
+  # get the absolute path to the data files
+  team_data_file = os.path.join(utils.get_raw_data_path(), FILE_NAME_MEMBERS)
+  supporters_data_file = os.path.join(utils.get_raw_data_path(), FILE_NAME_SUPPORTERS)
+
   
-  # test if the 'ericssoncommunity' can be found in the page
-  assert donor_page[page_url].find('ericssoncommunity') != -1
+  #
+  # Scrape the web
+  #
+  team_members = scraping.get_team_members()
+  # Update the ledger file with new team member data
+  team_ledger = utils.load_from_file(team_data_file)
+  scraping.update_ledger(team_ledger, team_members)
+  utils.save_to_file(team_data_file, team_ledger)
+  # Get each team member's page showing the supporters and detailed amount of donations
+  print("Getting all the pages for team members...")
+  all_supporters = {}
+  for member in tqdm(team_members): 
+    p_url = member['pageUrl']
+    name = member['name']
+    all_supporters[name] = scraping.parse_member_page(scraping.get_member_page(p_url))
+  # Update the supporter's ledger in the files
+  supporters_ledger = utils.load_from_file(supporters_data_file)
+  scraping.update_ledger(supporters_ledger, all_supporters)
+  utils.save_to_file(supporters_data_file, supporters_ledger)
+
+  #
+  # Perform analytics 
+  #
+  print("Performing analytics...")
+  msg = 'Auto Generated email -- Do not reply.\n ------- \n\n'
+  msg += 'Thanks to LTN top supporters:\n'
+  window_days_list = [("Yesterday", 2), ("Last 7 days", 7), ("Last 30 days", 30), ("Overall in 2017", 365)]
+  last_hd = None
+  for window_days in window_days_list:
+    highest_donation = analytics.get_highest_donation(supporters_ledger, window_days[1])
+    if highest_donation and highest_donation != last_hd:
+      last_hd = highest_donation
+      msg += "\t" + window_days[0] + ":\n" 
+      msg += '\t\t{} donated ${} to {}.\n'\
+              .format(highest_donation['supporter_name'], highest_donation['amount_dollar'],
+                      highest_donation['team_member'])
+      if highest_donation['message']:
+        msg += '\t\t"{}"\n'.format(highest_donation['message'])
+  #print(msg)
+  # get data for donations per divisions 
+  fname = os.path.join(utils.get_raw_data_path(), 'members_divisions.txt')
+  members_divisions = utils.load_from_file(fname)
+  fname = os.path.join(utils.get_raw_data_path(), 'ericsson_divisions.txt')
+  ericsson_divisions = utils.load_from_file(fname)
+  dbd = analytics.get_donation_by_division(team_ledger, members_divisions)
+  # Historical donation 
+  doantions_over_time = analytics.get_historical_donaitons(team_ledger)
+  # Get division of all team members 
+  mem_div = analytics.get_all_members_division(team_ledger, members_divisions)
+  fname = os.path.join(utils.get_admin_data_path(), 'members_divisions.txt')
+  utils.save_to_file(fname, mem_div)
   
-  # Save to file
-  save_to_file(data_file_name, team_data)
-  
-  print("Sending email ... ")
-  send_email()
+  #
+  # Visualization
+  #
+  file_name = os.path.join(utils.get_visual_data_path(), 'divisions.png')
+  visualizer.generate_bar_chart(dbd,  file_name) 
+  #
+  file_name = os.path.join(utils.get_visual_data_path(), 'time_series.png')
+  visualizer.generate_time_series(doantions_over_time, file_name)
+ 
+  #
+  # Sending email
+  #
+  if args.send_email:
+    print("Sending e-mail...")
+    send_email(utils.get_raw_data_path(), body="Auto generated email.")
+    send_email(utils.get_visual_data_path(), subject = "Today's LTN stats for site monitors.", body=msg)
+    send_email(utils.get_admin_data_path(), subject = "LTN admin data.", body="Auto generated email...")
+
 
   print("Done!")
-  
-  
-  
-
