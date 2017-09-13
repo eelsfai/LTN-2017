@@ -96,4 +96,5 @@ if __name__ == "__main__":
     send_email(utils.get_visual_data_path(), subject = "Today's LTN stats for site monitors.", body=msg)
     send_email(utils.get_admin_data_path(), subject = "LTN admin data.", body="Auto generated email...")
 
+
   print("Done!")
