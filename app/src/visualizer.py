@@ -99,6 +99,37 @@ def generate_time_series(time_value_pairs, file_name):
   plt.title("LTN - Total fund raised", fontsize=20)
   plt.savefig(file_name, dpi=IMG_QUALITY)
 
+
+def generate_bar_chart_percentage_raised_from_target(label_value_pairs, file_name = None):
+  '''
+  generates a bar chart based on values, labels the x-axis with labels, 
+  and saves it to a file. 
+  input
+    :list : a list of lables of the chart. These could be the 
+            divisions of organization 
+    :list : a list of values for each lable 
+    :str : a file_name to save the final result in
+  '''
+  PercentageRaised = (label_value_pairs[0][1])
+  N = len(label_value_pairs)
+  ind = np.arange(N)  # the x locations for the groups
+  width = 0.35       # the width of the bars
+
+  fig, ax = plt.subplots()
+  rects1 = ax.bar(ind, PercentageRaised, width, color='r')
+  
+  # add some text for labels, title and axes ticks
+  ax.set_ylabel('%')
+  ax.set_title('Percentage raised from target')
+  ax.set_xticks(ind + width / 2)
+  ax.set_xticklabels((''))
+  plt.ylim(0,100)
+
+  # Save the plot
+  plt.savefig(file_name, dpi=IMG_QUALITY)
+  
+
+
 if __name__ == "__main__":
   # generate the bar chart for tema competition 
   file_name = os.path.join(get_visual_data_path(), 'divisions.png')
@@ -114,4 +145,5 @@ if __name__ == "__main__":
   
   print('Done!')
   
+
   

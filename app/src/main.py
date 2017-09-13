@@ -37,7 +37,7 @@ if __name__ == "__main__":
   # Get each team member's page showing the supporters and detailed amount of donations
   print("Getting all the pages for team members...")
   all_supporters = {}
-  for member in tqdm(team_members): 
+  for member in tqdm(team_members): #tqdm : Instantly make your loops show a smart progress meter 
     p_url = member['pageUrl']
     name = member['name']
     all_supporters[name] = scraping.parse_member_page(scraping.get_member_page(p_url))
@@ -86,7 +86,7 @@ if __name__ == "__main__":
   #
   file_name = os.path.join(utils.get_visual_data_path(), 'time_series.png')
   visualizer.generate_time_series(doantions_over_time, file_name)
- 
+  
   #
   # Sending email
   #
