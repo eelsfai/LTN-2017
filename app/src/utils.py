@@ -61,4 +61,3 @@ def load_from_file(file_name):
   except Exception as e: 
     # log the error and return None in case there is any problem
     logging.error(e)
-    return 

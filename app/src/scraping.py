@@ -9,6 +9,8 @@ module to perform web scraping and getting data from the LTN website
 from requests import Session
 from bs4 import BeautifulSoup
 import json
+from time import gmtime, strftime
+
 
 
 def get_team_members():
@@ -61,7 +63,6 @@ def update_ledger(ledger, new_data, date = None):
   '''
   #get the date: 
   if not date: 
-    from time import gmtime, strftime
     date = strftime("%Y-%m-%d", gmtime())
   if type(ledger) != type(dict()):
     raise(Exception("ledger should be a dictionary"))

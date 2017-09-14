@@ -3,3 +3,4 @@
 .pydevproject
 __pycache__
 secrets.env
+quick_main.py

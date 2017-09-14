@@ -7,7 +7,7 @@ import argparse
 import os 
 from email_handler import send_email
 import utils # import get_raw_data_path, get_visual_data_path
-from tqdm import tqdm
+import tqdm
 import scraping
 import analytics
 import visualizer
@@ -37,7 +37,7 @@ if __name__ == "__main__":
   # Get each team member's page showing the supporters and detailed amount of donations
   print("Getting all the pages for team members...")
   all_supporters = {}
-  for member in tqdm(team_members): 
+  for member in tqdm.tqdm(team_members): 
     p_url = member['pageUrl']
     name = member['name']
     all_supporters[name] = scraping.parse_member_page(scraping.get_member_page(p_url))
@@ -50,7 +50,8 @@ if __name__ == "__main__":
   # Perform analytics 
   #
   print("Performing analytics...")
-  msg = 'Auto Generated email -- Do not reply.\n ------- \n\n'
+  msg = 'Do not reply to this email. This is an automatically generated message.\n' 
+  msg += 20 * '-' + '\n\n'
   msg += 'Thanks to LTN top supporters:\n'
   window_days_list = [("Yesterday", 2), ("Last 7 days", 7), ("Last 30 days", 30), ("Overall in 2017", 365)]
   last_hd = None
