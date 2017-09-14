@@ -26,7 +26,7 @@ COPY cron-script /etc/cron.d/cron-script
 RUN crontab /etc/cron.d/cron-script
 
 # make the entrypoint.sh executable
-RUN chmod 700 entrypoint.sh
+RUN chmod +x entrypoint.sh
 
 # Define our command to be run when launching the container
 CMD ./entrypoint.sh
