@@ -8,6 +8,7 @@ import utils
 import os
 import datetime
 import copy
+from utils import get_raw_data_path
 
 def str2date(date_str):
   '''
@@ -133,6 +134,21 @@ def get_all_members_division(team_ledger, members_divisions):
       member_divs[name] = members_divisions[name]
   return member_divs
 
+def is_new_member(member_data):
+  '''
+  determine if there was a new member yesterday 
+  input: 
+    :dict a ledger of memeber's data
+  output: 
+    :bool : True/False
+  '''
+  dates = list(member_data.keys())
+  dates.sort()
+  if len(dates) > 1: 
+    if len(member_data[dates[-1]]) > len(member_data[dates[-2]]): 
+      return True 
+  return False 
+
 if __name__ == "__main__":
   # Test sum donation 
   dstr = "2017-09-01"
@@ -170,6 +186,13 @@ if __name__ == "__main__":
   if hd30 != last_hd:
     print("highest donation during past 30 days is {}.".format(hd30)) 
   
-  
-
+  # check if there is a new member
+  print("checking if there is a new member...")
+  member_data = {
+                 "2017-09-05": [{"pageUrl": "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3697209&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA", "name": "Johanna Nicoletta", "isTeamCaptain": "True", "amount": "$277.38", "facebookId": "1633682560"}, {"pageUrl": "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3877056&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA", "name": "Ericsson Activities", "isTeamCaptain": "False", "amount": "$272.00", "facebookId": ""}, {"pageUrl": "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3869108&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA", "name": "Alireza Mirzaee", "isTeamCaptain": "False", "amount": "$25.00", "facebookId": ""}, {"pageUrl": "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3855399&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA", "name": "Hossein Seyedmehdi", "isTeamCaptain": "False", "amount": "$0.00", "facebookId": ""}], 
+                 "2017-09-06": [{"pageUrl": "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3697209&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA", "name": "Johanna Nicoletta", "isTeamCaptain": "True", "amount": "$277.38", "facebookId": "1633682560"}, {"pageUrl": "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3877056&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA", "name": "Ericsson Activities", "isTeamCaptain": "False", "amount": "$272.00", "facebookId": ""}, {"pageUrl": "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3869108&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA", "name": "Alireza Mirzaee", "isTeamCaptain": "False", "amount": "$25.00", "facebookId": ""}],
+                 "2017-09-09": [{"pageUrl": "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3697209&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA", "name": "Johanna Nicoletta", "isTeamCaptain": "True", "amount": "$506.79", "facebookId": "1633682560"}, {"pageUrl": "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3877056&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA", "name": "Ericsson Activities", "isTeamCaptain": "False", "amount": "$272.00", "facebookId": ""}, {"pageUrl": "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3869108&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA", "name": "Alireza Mirzaee", "isTeamCaptain": "False", "amount": "$25.00", "facebookId": ""}, {"pageUrl": "https://secure.e2rm.com/registrant/FundraisingPage.aspx?registrationID=3855399&langPref=en-CA&Referrer=https%3a%2f%2fsecure.e2rm.com%2fregistrant%2fsearch.aspx%3feventid%3d210107%26langpref%3den-CA", "name": "Hossein Seyedmehdi", "isTeamCaptain": "False", "amount": "$0.00", "facebookId": ""}] 
+                 }
+  #print(member_data.keys())
+  print(is_new_member(member_data))
 

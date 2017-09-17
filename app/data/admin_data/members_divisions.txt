@@ -1,0 +1,6 @@
+{
+    "Alireza Mirzaee": "Radio",
+    "Ericsson Activities": "",
+    "Hossein Seyedmehdi": "4G&5G RAN",
+    "Johanna Nicoletta": "4G&5G RAN"
+}

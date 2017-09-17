@@ -11,11 +11,13 @@ import tqdm
 import scraping
 import analytics
 import visualizer
+from datetime import datetime
 
 FILE_NAME_MEMBERS = 'member_data.txt'
 FILE_NAME_SUPPORTERS = 'supporters_data.txt'
 
 if __name__ == "__main__": 
+  print("Starting a new run at {} ...".format( str(datetime.now()) ))
   parser = argparse.ArgumentParser(description='Data analytics and Visualization for LightTheNight (DaViL)')
   parser.add_argument('--no-email', dest='send_email', default=True, action='store_false')
 
@@ -50,22 +52,12 @@ if __name__ == "__main__":
   # Perform analytics 
   #
   print("Performing analytics...")
-  msg = 'Do not reply to this email. This is an automatically generated message.\n' 
-  msg += 20 * '-' + '\n\n'
-  msg += 'Thanks to LTN top supporters:\n'
-  window_days_list = [("Yesterday", 2), ("Last 7 days", 7), ("Last 30 days", 30), ("Overall in 2017", 365)]
-  last_hd = None
+  highest_donations = []
+  window_days_list = [("Yesterday", 2), ("Last week", 7), ("Last month", 30), ("Overall in 2017", 365)]
   for window_days in window_days_list:
-    highest_donation = analytics.get_highest_donation(supporters_ledger, window_days[1])
-    if highest_donation and highest_donation != last_hd:
-      last_hd = highest_donation
-      msg += "\t" + window_days[0] + ":\n" 
-      msg += '\t\t{} donated ${} to {}.\n'\
-              .format(highest_donation['supporter_name'], highest_donation['amount_dollar'],
-                      highest_donation['team_member'])
-      if highest_donation['message']:
-        msg += '\t\t"{}"\n'.format(highest_donation['message'])
-  #print(msg)
+    highest_donations.append([window_days[0], window_days[1], 
+                              analytics.get_highest_donation(supporters_ledger, window_days[1])])
+
   # get data for donations per divisions 
   fname = os.path.join(utils.get_raw_data_path(), 'members_divisions.txt')
   members_divisions = utils.load_from_file(fname)
@@ -82,19 +74,24 @@ if __name__ == "__main__":
   #
   # Visualization
   #
-  file_name = os.path.join(utils.get_visual_data_path(), 'divisions.png')
-  visualizer.generate_bar_chart(dbd,  file_name) 
+  file_name_by_div = os.path.join(utils.get_raw_data_path(), 'divisions.png')
+  visualizer.generate_bar_chart(dbd,  file_name_by_div) 
   #
-  file_name = os.path.join(utils.get_visual_data_path(), 'time_series.png')
-  visualizer.generate_time_series(doantions_over_time, file_name)
- 
+  file_name_time_series = os.path.join(utils.get_raw_data_path(), 'time_series.png')
+  visualizer.generate_time_series(doantions_over_time, file_name_time_series)
+  # 
+  fname = os.path.join(utils.get_visual_data_path(), 'results.pptx')
+  visualizer.generate_ppt(fname, highest_donations = highest_donations, 
+                 image_total_fund_raised = file_name_time_series, 
+                 image_fund_by_division = file_name_by_div)
   #
   # Sending email
   #
   if args.send_email:
     print("Sending e-mail...")
-    send_email(utils.get_raw_data_path(), body="Auto generated email.")
-    send_email(utils.get_visual_data_path(), subject = "Today's LTN stats for site monitors.", body=msg)
-    send_email(utils.get_admin_data_path(), subject = "LTN admin data.", body="Auto generated email...")
+    send_email(utils.get_raw_data_path(), subject = "LTN -- raw data", body="Do not reply.\n")
+    send_email(utils.get_visual_data_path(), subject = "Today's LTN stats and charts", body="Automatically generated email.\n")
+    if analytics.is_new_member(team_ledger):
+      send_email(utils.get_admin_data_path(), subject = "New LTN Member!.", body="Please update the section of the new member.")
 
   print("Done!")

@@ -3,14 +3,10 @@ services:
     app_service:
         build: ./app/
         image: ltneric/ltn2017:latest
-        networks:
-          - frontend
         volumes:
         #  - $PWD/app:/app
-          - $PWD/tmp:/var/log/
+          - $PWD:/var/log/
         environment:
-          - DEBUG=False
+          - DEBUG="True"
         env_file:
           - secrets.env
-networks:
-    frontend:

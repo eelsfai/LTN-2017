@@ -3,4 +3,4 @@ beautifulsoup4==4.6.0
 tqdm
 numpy
 matplotlib
-
+python-pptx
