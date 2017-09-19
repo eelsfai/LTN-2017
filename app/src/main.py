@@ -92,6 +92,6 @@ if __name__ == "__main__":
     send_email(utils.get_raw_data_path(), subject = "LTN -- raw data", body="Do not reply.\n")
     send_email(utils.get_visual_data_path(), subject = "Today's LTN stats and charts", body="Automatically generated email.\n")
     if analytics.is_new_member(team_ledger):
-      send_email(utils.get_admin_data_path(), subject = "New LTN Member!.", body="Please update the section of the new member.")
+      send_email(utils.get_admin_data_path(), subject = "New LTN Member!", body="Please update the team of the new member.")
 
   print("Done!")

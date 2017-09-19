@@ -1,6 +1,9 @@
 {
-    "Alireza Mirzaee": "Radio",
+    "Alireza Mirzaee": "Team Tower",
     "Ericsson Activities": "",
-    "Hossein Seyedmehdi": "4G&5G RAN",
-    "Johanna Nicoletta": "4G&5G RAN"
+    "Hossein Seyedmehdi": "Team Tower",
+    "Johanna Nicoletta": "Team Tower",
+    "Ronald Casselman": "Team Warehouse",
+    "Team Tower": "",
+    "Team Warehouse": ""
 }

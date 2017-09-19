@@ -46,7 +46,7 @@ def generate_bar_chart(label_value_pairs, file_name = None):
   plt.xticks(x, labels, fontsize = 15)
   # no y axis ticks
   plt.yticks([])
-  # plt.title("Light The Night fundraising results", fontsize = 20)
+  # plt.title("LTN - Division Competition Results", fontsize = 20)
   # Remove all the spines except the bottom one 
   # [trick here](https://stackoverflow.com/questions/18968024/how-to-remove-axis-in-pyplot-bar)
   for loc, spine in plt.axes().axes.spines.items(): 
@@ -161,7 +161,7 @@ def generate_ppt(result_file_name, highest_donations = None,
     slide = prs.slides.add_slide(blank_slide_layout)
     shapes = slide.shapes
     title_shape = shapes.title
-    title_shape.text = 'LTN - Section Competition Results'
+    title_shape.text = 'LTN - Competition Results'
     left = Inches(1)
     top = Inches(1.3)
     height = Inches(5.75)
