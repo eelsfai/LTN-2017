@@ -26,4 +26,5 @@ On your local machine:
  - Connect to your machine. 
  - Install Docker on your machine, [istructions](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html#install_docker). 
  - Install **docker-compose** on your machine, [instructions](https://docs.docker.com/compose/install/#install-compose)
+ - Looking into the `docker-compose.yml` file, you can see that a `secrets.env` file is used. Since this file includes secrets (obviously!), it is not included in this repo. Make sure you have this file and `scp` it into your instance though. 
  - Run `docker-compose up` to start the container!

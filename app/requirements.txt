@@ -1,6 +1,6 @@
 requests
 beautifulsoup4==4.6.0
-tqdm==4.11.2
+tqdm
 numpy
 matplotlib
-
+python-pptx

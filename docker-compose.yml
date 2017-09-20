@@ -3,19 +3,10 @@ services:
     app_service:
         build: ./app/
         image: ltneric/ltn2017:latest
-        networks:
-          - frontend
-        #volumes:
+        volumes:
         #  - $PWD/app:/app
-        deploy:
-          replicas: 1
-          update_config:
-            parallelism: 1
-          restart_policy:
-            condition: on-failure
+          - $PWD:/var/log/
         environment:
-          - DEBUG=False
+          - DEBUG="True"
         env_file:
           - secrets.env
-networks:
-    frontend:
